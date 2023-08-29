@@ -285,7 +285,7 @@ class Dataset():
         return adata,adj, features, labels
 
     def load_npz(self, file_name, is_sparse=True):
-        path = '/home/xm/my_code/DeepRobust_1/'
+
         file_path = path + self.data_filename
         adata,feature_gene,labels_gene,_,_,_ = load_h5(file_path,n_gene=2000,sparsify=False,skip_exprs=False)
         # labels_gene = np.loadtxt(file_path)
@@ -382,21 +382,3 @@ def buildGraphNN(X, neighborK):
 
 
 
-# if __name__ == '__main__':
-#     from deeprobust.graph.data import Dataset
-#
-#     pwd = os.getcwd()
-#     project_path = os.path.dirname(pwd)
-#     project_path = os.path.dirname(project_path)
-#     project_path = os.path.dirname(project_path)
-#     # for name in ['Adam','Bach','Chen','Klein','Muraro','Plasschaert']:
-#     #     data = Dataset(root='/dataset/', name=name, setting="prognn")
-#     #     idx_train = data.idx_train
-#     #     data2 = Dataset(root='/dataset/', name=name, setting="nettack", seed=15)
-#     #     idx_train2 = data2.idx_train
-#     #     # assert (idx_train != idx_train2).sum() == 0
-#
-#     data = Dataset(root='/dataset/', name='Plasschaert')
-#     adj, features, labels = data.adj, data.features, data.labels
-#     idx_train, idx_val, idx_test = data.idx_train, data.idx_val, data.idx_test
-#     print("okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
