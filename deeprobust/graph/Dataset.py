@@ -56,7 +56,27 @@ class Dataset():
         # self.name = name.lower()
         self.name = name
         self.setting = setting.lower()
+
+        # assert self.name in ['gse121787','cora', 'citeseer', 'cora_ml', 'polblogs',
+        #                      'pubmed', 'acm', 'blogcatalog', 'uai', 'flickr'], \
+        #     'Currently only support cora, citeseer, cora_ml, ' + \
+        #     'polblogs, pubmed, acm, blogcatalog, flickr'
+        # assert self.name in ['Adam', 'Bach', 'Chen', 'Klein', 'Muraro',
+        #                      'Plasschaert'], \
+        #     'Currently only support cora, citeseer, cora_ml, ' + \
+        #     'polblogs, pubmed, acm, blogcatalog, flickr'
+        # assert self.setting in ['gcn', 'nettack', 'prognn'], "Settings should be" + \
+        #                                                      " choosen from ['gcn', 'nettack', 'prognn']"
+
         self.seed = seed
+        # self.url =  'https://raw.githubusercontent.com/danielzuegner/nettack/master/data/%s.npz' % self.name
+        # self.url = 'https://raw.githubusercontent.com/danielzuegner/gnn-meta-attack/master/data/%s.npz' % self.name
+
+        # if platform.system() == 'Windows':
+        #     self.root = root
+        #
+        # else:
+        #     self.root = osp.expanduser(osp.normpath(root))
 
         self.data_folder = osp.join(root, self.name)
         self.data_folder = self.data_folder + '/data'
@@ -67,6 +87,9 @@ class Dataset():
         self.adata,self.adj, self.features, self.labels = self.load_data()
 
         if setting == 'prognn':
+            # assert name in ['gse121787','cora', 'citeseer', 'pubmed', 'cora_ml', 'polblogs'], "ProGNN splits only " + \
+            #                                                                       "cora, citeseer, pubmed, cora_ml, polblogs"
+
             index = list(range(self.adj.shape[0]))
             random.shuffle(index)
             train_data = 0.5*len(index)
@@ -80,9 +103,9 @@ class Dataset():
             for i in self.idx_val:
                 index.remove(i)
             self.idx_test = list(index[0:int(np.ceil(test_data))])
-
+            # self.idx_train, self.idx_val, self.idx_test = self.get_prognn_splits()
         else:
-
+            # self.idx_train, self.idx_val, self.idx_test = self.get_train_val_test()
             index = list(range(self.adj.shape[0]))
             random.shuffle(index)
             train_data = 0.5 * len(index)
@@ -126,6 +149,14 @@ class Dataset():
 
     def load_data(self):
         print('Loading {} dataset...'.format(self.name))
+        # if self.name == 'pubmed':
+        #     return self.load_pubmed()
+        #
+        # if self.name in ['acm', 'blogcatalog', 'uai', 'flickr']:
+        #     return self.load_zip()
+        #
+        # if not osp.exists(self.data_filename):
+        #     self.download_npz()
 
         adata,adj, features, labels = self.get_adj()
         return adata,adj, features, labels
@@ -254,14 +285,37 @@ class Dataset():
         return adata,adj, features, labels
 
     def load_npz(self, file_name, is_sparse=True):
-        path=''
+        path = '/home/xm/my_code/DeepRobust_1/'
         file_path = path + self.data_filename
         adata,feature_gene,labels_gene,_,_,_ = load_h5(file_path,n_gene=2000,sparsify=False,skip_exprs=False)
+        # labels_gene = np.loadtxt(file_path)
+        # labels_gene = labels_gene.astype(int)
         adj_gene = buildGraphNN(feature_gene, 200)
+        file_name = os.getcwd()+file_name
+        # with np.load(file_name) as loader:
+        #     # loader = dict(loader)
         if is_sparse:
+                # adj = sp.csr_matrix((loader['adj_data'], loader['adj_indices'],
+                #                      loader['adj_indptr']), shape=loader['adj_shape'])
+
             adj_gene = sp.csr_matrix(adj_gene)
+
+                # # if 'attr_data' in loader:
+                # #     features = sp.csr_matrix((loader['attr_data'], loader['attr_indices'],
+                # #                               loader['attr_indptr']), shape=loader['attr_shape'])
+                # # else:
+                # #     features = None
+                #
+                # labels = loader.get('labels')
         else:
+                # adj = loader['adj_data']
             adj_gene = adj_gene
+
+                # if 'attr_data' in loader:
+                #     features = loader['attr_data']
+                # else:
+                #     features = None
+                # labels = loader.get('labels')
         if feature_gene is None:
             feature_gene = np.eye(adj_gene.shape[0])
         features = sp.csr_matrix(feature_gene, dtype=np.float32)
@@ -325,3 +379,24 @@ def buildGraphNN(X, neighborK):
     A = kneighbors_graph(X, neighborK, mode='connectivity', metric='cosine', include_self=True)
     return A
 
+
+
+
+# if __name__ == '__main__':
+#     from deeprobust.graph.data import Dataset
+#
+#     pwd = os.getcwd()
+#     project_path = os.path.dirname(pwd)
+#     project_path = os.path.dirname(project_path)
+#     project_path = os.path.dirname(project_path)
+#     # for name in ['Adam','Bach','Chen','Klein','Muraro','Plasschaert']:
+#     #     data = Dataset(root='/dataset/', name=name, setting="prognn")
+#     #     idx_train = data.idx_train
+#     #     data2 = Dataset(root='/dataset/', name=name, setting="nettack", seed=15)
+#     #     idx_train2 = data2.idx_train
+#     #     # assert (idx_train != idx_train2).sum() == 0
+#
+#     data = Dataset(root='/dataset/', name='Plasschaert')
+#     adj, features, labels = data.adj, data.features, data.labels
+#     idx_train, idx_val, idx_test = data.idx_train, data.idx_val, data.idx_test
+#     print("okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
